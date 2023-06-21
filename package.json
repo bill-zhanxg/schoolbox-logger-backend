@@ -1,0 +1,16 @@
+{
+  "name": "schoolbox-tracker-backend",
+  "version": "1.0.0",
+  "description": "Track any Schoolbox instance such as users, and provide better search filters",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Bill.IHCha",
+  "license": "MIT",
+  "dependencies": {
+    "node-appwrite": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}
