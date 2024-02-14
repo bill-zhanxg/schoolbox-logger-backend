@@ -1,0 +1,13 @@
+{
+  "id": "mig_cn65i41a13a9jlkcq5lg",
+  "parentID": "mig_cn65hhpa13a9jlkcq5kg",
+  "checksum": "1:de1118d9117ccbf6292a7304a0548ca7dd88c731a55a5617913ba64060f3776c",
+  "operations": [
+    {
+      "renameTable": {
+        "newName": "profile_pictures",
+        "oldName": "schoolbox_users"
+      }
+    }
+  ]
+}

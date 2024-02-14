@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47dpeoqtrnk82p0sk0",
+  "parentID": "mig_cn47dluoqtrnk82p0sj0",
+  "checksum": "1:82001ace0530f60dfdaa62576259c5df4d39a5ebca471623742cdfb1f3a00d13",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "mobilePhone",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

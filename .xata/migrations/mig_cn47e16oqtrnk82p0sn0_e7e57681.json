@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47e16oqtrnk82p0sn0",
+  "parentID": "mig_cn47dvmoqtrnk82p0sm0",
+  "checksum": "1:e7e57681e097e5d2e533e1c203a3426591b9da42a0804d4ab04374e544d63a48",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "streetAddress",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

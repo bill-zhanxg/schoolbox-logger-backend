@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47dums99soultrsdrg",
+  "parentID": "mig_cn47dsuoqtrnk82p0sl0",
+  "checksum": "1:9e4c750a14afb4eca425c44a8de9081e50ba3d8538d28e70f62a5479d660a0d1",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesSyncEnabled",
+          "type": "bool"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "mig_cn65hdha13a9jlkcq5jg",
+  "parentID": "mig_cn47e3p9stmakh8qrfcg",
+  "checksum": "1:317260ed282be080496939bb04a05f4b63e06a0288a2b62597018a93eba338f7",
+  "operations": [
+    {
+      "addTable": {
+        "table": "schoolbox_users"
+      }
+    }
+  ]
+}

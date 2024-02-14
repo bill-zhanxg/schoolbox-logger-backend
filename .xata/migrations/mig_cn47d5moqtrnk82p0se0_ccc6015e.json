@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47d5moqtrnk82p0se0",
+  "parentID": "mig_cn47d46s99soultrsdpg",
+  "checksum": "1:ccc6015e5c8994c0fb05a39b520bc95fc0be62bfbe39f49541522efdda3f75e0",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "department",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

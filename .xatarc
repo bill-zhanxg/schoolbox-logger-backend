@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Bill-zhanxg-s-workspace-76bknl.ap-southeast-2.xata.sh/db/schoolbox-logger",
+  "codegen": {
+    "output": "src/libs/xata.ts"
+  }
+}

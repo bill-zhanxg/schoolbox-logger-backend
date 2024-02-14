@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47cl6oqtrnk82p0sc0",
+  "parentID": "mig_cn47b6moqtrnk82p0sb0",
+  "checksum": "1:408ff39bde8b4f371c5c56dcedf496876ee7c7bd16cee1ef90f3ab419316c97f",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "accountEnabled",
+          "type": "bool"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

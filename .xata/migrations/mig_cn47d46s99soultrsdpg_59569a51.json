@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47d46s99soultrsdpg",
+  "parentID": "mig_cn47d1ms99soultrsdog",
+  "checksum": "1:59569a513877d11fb78d97c8bd6298c0e90c254abf2c6a11ed2cd50ebbc5193c",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "createdDateTime",
+          "type": "datetime"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

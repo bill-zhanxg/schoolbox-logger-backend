@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47dvmoqtrnk82p0sm0",
+  "parentID": "mig_cn47dums99soultrsdrg",
+  "checksum": "1:0e6a0ea1e32ba55e55cfcd6730ec16b2de0188ba321013d11aac92ba6241e23a",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "postalCode",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

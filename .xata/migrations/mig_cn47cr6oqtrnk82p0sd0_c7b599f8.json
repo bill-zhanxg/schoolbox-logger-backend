@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47cr6oqtrnk82p0sd0",
+  "parentID": "mig_cn47cl6oqtrnk82p0sc0",
+  "checksum": "1:c7b599f82a105ebe9f47053a4c58a047485bd74be3bcc2644896b3c351eeaaa4",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "ageGroup",
+          "type": "string"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

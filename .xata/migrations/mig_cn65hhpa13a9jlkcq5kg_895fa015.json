@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn65hhpa13a9jlkcq5kg",
+  "parentID": "mig_cn65hdha13a9jlkcq5jg",
+  "checksum": "1:895fa0158242b8b0e6107503fc598a78594a8657e0a8a0d6dee63ec2ca3a6edd",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "mail",
+          "type": "email"
+        },
+        "table": "schoolbox_users"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn47dguoqtrnk82p0sh0",
+  "parentID": "mig_cn47d8eoqtrnk82p0sg0",
+  "checksum": "1:a6d1453df49f753a4e93986b6905ef071475e855d15bf548841b30e8beeec2f0",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "lastPasswordChangeDateTime",
+          "type": "datetime"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

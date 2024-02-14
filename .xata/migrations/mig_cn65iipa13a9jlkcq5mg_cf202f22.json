@@ -1,0 +1,13 @@
+{
+  "id": "mig_cn65iipa13a9jlkcq5mg",
+  "parentID": "mig_cn65ihnbg43tg552msa0",
+  "checksum": "1:cf202f227f2a1a02db725b46fa6c600be70af253f4e691f7f653a5b771b67406",
+  "operations": [
+    {
+      "renameTable": {
+        "newName": "portraits",
+        "oldName": "profile_pictures"
+      }
+    }
+  ]
+}
