@@ -5,6 +5,7 @@ const dynamicImport = new Function('specifier', 'return import(specifier)');
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
+import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
 
 const app = express();
@@ -19,7 +20,7 @@ export function authenticatedUser(req: Request, res: Response, next: NextFunctio
 
 app.use(express.json());
 
-app.post('/', authenticatedUser, async (req, res) => {
+app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	const { schoolboxDomain, schoolboxCookie } = req.body;
 	// Validate request body
 	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
@@ -33,7 +34,7 @@ app.post('/', authenticatedUser, async (req, res) => {
 	const Queue = await dynamicImport('queue');
 	const q: QueueType = new Queue.default();
 
-	for (let i = 8294; i < 8295; i++) {
+	for (let i = 8200; i < 8300; i++) {
 		q.push((cb) => {
 			if (!cb) throw new Error('Callback is not defined');
 
@@ -64,23 +65,34 @@ app.post('/', authenticatedUser, async (req, res) => {
 										const matches = filenameRegex.exec(contentDisposition);
 										if (matches != null && matches[1]) {
 											const filename = matches[1].replace(/['"]/g, '');
-											console.log(filename);
 											const portraitBlob = await res.blob();
-											new File([portraitBlob], filename);
+											const portrait = new File([portraitBlob], filename);
+
+											const response = await getXataFile(portrait);
+											if (typeof response === 'string') throw new Error(response);
+											const [fileObject, fileBlob] = response;
 
 											// Database action
-											// xata.db.portraits
-											// 	.create({
-											// 		mail: email,
-											// 		portrait: portrait,
-											// 	})
-											// 	.catch((err) => {
-											// 		// TODO
-											// 		console.log('database error', err);
-											// 	})
-											// 	.finally(() => {
-											// 		cb();
-											// 	});
+											xata.db.portraits
+												.create({
+													mail: email,
+													portrait: fileObject ? fileObject : null,
+												})
+												.then(async (portrait) => {
+													if (fileBlob) {
+														await xata.files.upload(
+															{ table: 'portraits', column: 'portrait', record: portrait.id },
+															fileBlob,
+														);
+													}
+												})
+												.catch((err) => {
+													// TODO
+													console.log('database error', err);
+												})
+												.finally(() => {
+													cb();
+												});
 										} else throw new Error('Filename is not defined');
 									} else throw new Error(`Failed getting portrait for ${i} with status ${res.status}`);
 								})
@@ -103,12 +115,13 @@ app.post('/', authenticatedUser, async (req, res) => {
 		});
 	}
 
+	res.send('I got the response, I will process in the background');
+
 	q.start((err) => {
 		// TODO
 		if (err) throw err;
 		console.log('all done:', q);
 	});
-	res.send('authed');
 });
 
 app.listen(8000, () => {

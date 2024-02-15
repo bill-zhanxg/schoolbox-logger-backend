@@ -1,6 +1,6 @@
 export async function getXataFile(
 	file?: File | null,
-	enablePublicUrl = true,
+	enablePublicUrl = false,
 ): Promise<
 	| [
 			{
