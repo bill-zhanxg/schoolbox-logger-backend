@@ -5,15 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
             "name": "Debug Project",
-            "cwd": "${workspaceRoot}",
-            "runtimeExecutable": "npm",
-            "runtimeArgs": [
-                "run-script",
-                "dev"
-            ],
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run dev",
             "env": {
                 "NODE_ENV": "development"
             },
