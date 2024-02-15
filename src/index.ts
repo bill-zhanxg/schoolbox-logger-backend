@@ -33,7 +33,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 	res.send('I got the response, I will process in the background');
 
-	const start = 3260;
+	const start = 1;
 	const end = 11520;
 
 	const Queue = (await dynamicImport('queue')).default;
@@ -89,6 +89,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 												xata.db.portraits
 													.create({
 														mail: email,
+														schoolbox_id: i,
 														portrait: fileObject ? fileObject : null,
 													})
 													.then(async (portrait) => {

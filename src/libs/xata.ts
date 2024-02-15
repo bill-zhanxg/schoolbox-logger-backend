@@ -100,6 +100,7 @@ const tables = [
     columns: [
       { name: "mail", type: "email" },
       { name: "portrait", type: "file" },
+      { name: "schoolbox_id", type: "int" },
     ],
   },
 ] as const;

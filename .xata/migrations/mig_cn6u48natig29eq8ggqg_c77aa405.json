@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn6u48natig29eq8ggqg",
+  "parentID": "mig_cn65iipa13a9jlkcq5mg",
+  "checksum": "1:c77aa405758271845d9d221c20030465c76ba57f1f38d652ffca8c76690a9d1d",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "schoolbox_id",
+          "type": "int"
+        },
+        "table": "portraits"
+      }
+    }
+  ]
+}
