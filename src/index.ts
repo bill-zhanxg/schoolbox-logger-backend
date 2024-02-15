@@ -1,23 +1,22 @@
-import { ExpressAuth } from '@auth/express';
-import { XataAdapter } from '@auth/xata-adapter';
-import express from 'express';
+import 'dotenv-flow/config';
+
+import express, { NextFunction } from 'express';
 import { getXataClient } from './libs/xata';
 
+console.log(process.env.XATA_API_KEY);
+const app = express();
 const client = getXataClient();
 
-const app = express();
+export function authenticatedUser(req: Request, res: Response, next: NextFunction) {
+	console.log('authenticatedUser');
+	// if (!session?.user) {
+	// 	res.redirect('/login');
+	// } else {
+	// 	next();
+	// }
+}
 
-// If app is served through a proxy, trust the proxy to allow HTTPS protocol to be detected
-app.use(
-	'/auth/*',
-	ExpressAuth({
-		adapter: XataAdapter(client),
-		session: {
-			strategy: 'database',
-		},
-		debug: process.env.NODE_ENV === 'development',
-	}),
-);
+app.use(express.json());
 
 app.listen(8000, () => {
 	console.log('listening on 8000');
