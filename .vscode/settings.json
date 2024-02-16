@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
+        "apologise",
+        "deepcode",
         "schoolbox",
+        "Ssrf"
     ],
     "typescript.tsdk": "node_modules\\typescript\\lib"
 }

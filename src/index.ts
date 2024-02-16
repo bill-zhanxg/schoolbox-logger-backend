@@ -1,4 +1,6 @@
 // file deepcode ignore Ssrf: Strictly authenticated path
+// file deepcode ignore UseCsurfForExpress: This server uses server authentication instead of cookies
+// file deepcode ignore DisablePoweredBy: We don't need to hide the server
 import 'dotenv-flow/config';
 const dynamicImport = new Function('specifier', 'return import(specifier)');
 
