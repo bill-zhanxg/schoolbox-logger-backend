@@ -37,8 +37,8 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	res.send('I got the response, I will process in the background');
 
 	const start = 1;
-	const end = 300;
-	// const end = 11520;
+	// const end = 300;
+	const end = 11520;
 
 	const Queue = (await dynamicImport('queue')).default;
 	// Split the process into chunk of 500 to avoid maximum call stack exceeded
@@ -85,6 +85,8 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 													message: `Successfully processed ${i}`,
 													level: 'verbose',
 												});
+												console.log(`Successfully processed ${i}`);
+
 												const contentDisposition = res.headers.get('content-disposition');
 												if (!contentDisposition) throw new Error('Content-Disposition header is not defined');
 												const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
@@ -118,6 +120,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 																message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
 																level: 'error',
 															});
+															console.error(`Creating portrait record failed for ${i}`, err);
 														})
 														.finally(() => {
 															cb();
@@ -127,6 +130,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 														message: `Can not find filename for ${i} portrait`,
 														level: 'error',
 													});
+													console.error(`Can not find filename for ${i} portrait`);
 													cb();
 												}
 											} else {
@@ -134,6 +138,9 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 													message: `Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
 													level: 'error',
 												});
+												console.error(
+													`Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+												);
 												cb();
 											}
 										})
@@ -142,6 +149,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 												message: `Portrait request failed for ${i} with message ${err.message} and stack ${err.stack}`,
 												level: 'error',
 											});
+											console.error(`Portrait request failed for ${i}`, err);
 											cb();
 										});
 								} else {
@@ -165,6 +173,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 											message: `Schoolbox is rate limited for ${i}`,
 											level: 'info',
 										});
+										console.info(`Schoolbox is rate limited for ${i}`);
 										retry = true;
 										await new Promise((resolve) => {
 											setTimeout(() => {
@@ -177,6 +186,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 											message: `No email found for ${i}`,
 											level: 'warning',
 										});
+										console.warn(`No email found for ${i}`);
 										cb();
 									}
 								}
@@ -188,6 +198,11 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 											: `Search request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
 									level: res.status === 404 ? 'verbose' : 'error',
 								});
+								if (res.status === 404) console.log(`User ${i} does not exist`);
+								else
+									console.error(
+										`Search request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+									);
 								cb();
 							}
 						})
@@ -196,6 +211,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 								message: `Search request failed okay for ${i} with message ${err.message} and stack ${err.stack}`,
 								level: 'error',
 							});
+							console.error(`Search request failed okay for ${i}`, err);
 							cb();
 						});
 				}
@@ -209,6 +225,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 					message: `Chunk ${c} is finished`,
 					level: 'verbose',
 				});
+				console.log(`Chunk ${c} is finished`);
 
 				// Upload logs to database
 				const chunks = chunk(logs);
