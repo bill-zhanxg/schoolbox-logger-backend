@@ -1,0 +1,12 @@
+{
+  "id": "mig_cn7h4uvatig29eq8glgg",
+  "parentID": "mig_cn6u48natig29eq8ggqg",
+  "checksum": "1:0ed79dfc51cf50477f82414b2587423bea27b519a1dc2e0234cf3fe4aad75863",
+  "operations": [
+    {
+      "addTable": {
+        "table": "portrait_logs"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn7h50pu2kslv9ddsj80",
+  "parentID": "mig_cn7h4uvatig29eq8glgg",
+  "checksum": "1:36d031bd6fe609bf9553974801654c1f1f078cc5bdd36f2db7f5b40ba9433be2",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "message",
+          "type": "text"
+        },
+        "table": "portrait_logs"
+      }
+    }
+  ]
+}

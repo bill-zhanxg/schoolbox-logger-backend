@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn7h787atig29eq8gljg",
+  "parentID": "mig_cn7h50pu2kslv9ddsj80",
+  "checksum": "1:e0900123110b6d4190ec0bc5f175a8e1af18ac4b38c204156f238045b27aadf7",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "error",
+          "type": "bool"
+        },
+        "table": "portrait_logs"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn7h7mhu2kslv9ddsjbg",
+  "parentID": "mig_cn7h7k9u2kslv9ddsjag",
+  "checksum": "1:a9bbfa01f7d63cba865c53c6e7518b5199374134271e30a15e2f7e7181878a60",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "level",
+          "type": "string"
+        },
+        "table": "portrait_logs"
+      }
+    }
+  ]
+}

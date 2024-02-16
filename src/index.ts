@@ -7,6 +7,7 @@ const dynamicImport = new Function('specifier', 'return import(specifier)');
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
+import { chunk } from './libs/formatValue';
 import { getXataFile } from './libs/getXataFile';
 import { getXataClient } from './libs/xata';
 
@@ -36,7 +37,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	res.send('I got the response, I will process in the background');
 
 	const start = 1;
-	const end = 2000;
+	const end = 300;
 	// const end = 11520;
 
 	const Queue = (await dynamicImport('queue')).default;
@@ -44,6 +45,10 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	const chunkSize = 500;
 	for (let c = 0; c < Math.ceil(end / chunkSize); c++) {
 		const q: QueueType = new Queue();
+		const logs: {
+			message: string;
+			level: 'verbose' | 'info' | 'warning' | 'error';
+		}[] = [];
 
 		const remaining = end - c * chunkSize;
 		for (
@@ -68,7 +73,6 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 								const $ = cheerio.load(await res.text());
 								const email = $('#content .content dd a').text().toLowerCase();
 								if (email.trim()) {
-									console.log(email);
 									// We need user cookie to get portrait
 									await fetch(`${schoolboxUrl}portrait.php?id=${i}`, {
 										headers: {
@@ -77,7 +81,10 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 									})
 										.then(async (res) => {
 											if (res.ok) {
-												console.log('number', i, 'is ok');
+												logs.push({
+													message: `Successfully processed ${i}`,
+													level: 'verbose',
+												});
 												const contentDisposition = res.headers.get('content-disposition');
 												if (!contentDisposition) throw new Error('Content-Disposition header is not defined');
 												const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
@@ -107,18 +114,34 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 															}
 														})
 														.catch((err) => {
-															// TODO
-															console.log('database error', err);
+															logs.push({
+																message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
+																level: 'error',
+															});
 														})
 														.finally(() => {
 															cb();
 														});
-												} else throw new Error('Filename is not defined');
-											} else throw new Error(`Failed getting portrait for ${i} with status ${res.status}`);
+												} else {
+													logs.push({
+														message: `Can not find filename for ${i} portrait`,
+														level: 'error',
+													});
+													cb();
+												}
+											} else {
+												logs.push({
+													message: `Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+													level: 'error',
+												});
+												cb();
+											}
 										})
 										.catch((err) => {
-											// TODO
-											console.log(err);
+											logs.push({
+												message: `Portrait request failed for ${i} with message ${err.message} and stack ${err.stack}`,
+												level: 'error',
+											});
 											cb();
 										});
 								} else {
@@ -138,7 +161,10 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 											</div>
 										*/
 										// We want to wait and retry the request
-										console.log('Schoolbox is rate limited,', i);
+										logs.push({
+											message: `Schoolbox is rate limited for ${i}`,
+											level: 'info',
+										});
 										retry = true;
 										await new Promise((resolve) => {
 											setTimeout(() => {
@@ -147,18 +173,29 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 										});
 									} else {
 										// Maybe log to database
-										console.log('No email found for', i);
+										logs.push({
+											message: `No email found for ${i}`,
+											level: 'warning',
+										});
 										cb();
 									}
 								}
 							} else {
-								console.log(res.statusText);
+								logs.push({
+									message:
+										res.status === 404
+											? `User ${i} does not exist`
+											: `Search request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+									level: res.status === 404 ? 'verbose' : 'error',
+								});
 								cb();
 							}
 						})
 						.catch((err) => {
-							// TODO
-							console.log(err);
+							logs.push({
+								message: `Search request failed okay for ${i} with message ${err.message} and stack ${err.stack}`,
+								level: 'error',
+							});
 							cb();
 						});
 				}
@@ -167,9 +204,29 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 		await new Promise((resolve) => {
 			q.start((err) => {
-				// TODO
 				if (err) throw err;
-				console.log(`Batch ${c} is finished:`);
+				logs.push({
+					message: `Chunk ${c} is finished`,
+					level: 'verbose',
+				});
+
+				// Upload logs to database
+				const chunks = chunk(logs);
+				chunks.forEach((chunk) => {
+					xata.transactions
+						.run(
+							chunk.map((data) => ({
+								insert: {
+									table: 'portrait_logs',
+									record: data,
+								},
+							})),
+						)
+						.catch((err) => {
+							console.error('Failed to upload logs', err);
+						});
+				});
+
 				setTimeout(() => {
 					resolve(undefined);
 				}, 5000);
