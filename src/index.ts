@@ -36,21 +36,23 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 	res.send('I got the response, I will process in the background');
 
-	const start = 1;
-	// const end = 300;
-	const end = 11520;
+	const start = 793;
+	// End need to be +1 because the loop is exclusive
+	const end = 794 + 1;
+	// const start = 1;
+	// const end = 11520;
 
 	const Queue = (await dynamicImport('queue')).default;
 	// Split the process into chunk of 500 to avoid maximum call stack exceeded
 	const chunkSize = 500;
-	for (let c = 0; c < Math.ceil(end / chunkSize); c++) {
+	for (let c = 0; c < Math.ceil((end - start) / chunkSize); c++) {
 		const q: QueueType = new Queue();
 		const logs: {
 			message: string;
 			level: 'verbose' | 'info' | 'warning' | 'error';
 		}[] = [];
 
-		const remaining = end - c * chunkSize;
+		const remaining = end - start - c * chunkSize;
 		for (
 			let i = c * chunkSize + start;
 			i < c * chunkSize + start + (remaining < chunkSize ? remaining : chunkSize);
@@ -71,7 +73,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 						.then(async (res) => {
 							if (res.ok) {
 								const $ = cheerio.load(await res.text());
-								const email = $('#content .content dd a').text().toLowerCase();
+								const email = $('#content .content dd a').text().replaceAll(' ', '').toLowerCase();
 								if (email.trim()) {
 									// We need user cookie to get portrait
 									await fetch(`${schoolboxUrl}portrait.php?id=${i}`, {
@@ -81,12 +83,6 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 									})
 										.then(async (res) => {
 											if (res.ok) {
-												logs.push({
-													message: `Successfully processed ${i}`,
-													level: 'verbose',
-												});
-												console.log(`Successfully processed ${i}`);
-
 												const contentDisposition = res.headers.get('content-disposition');
 												if (!contentDisposition) throw new Error('Content-Disposition header is not defined');
 												const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
@@ -101,7 +97,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 													const [fileObject, fileBlob] = response;
 
 													// Database action
-													xata.db.portraits
+													await xata.db.portraits
 														.create({
 															mail: email,
 															schoolbox_id: i,
@@ -114,6 +110,12 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 																	fileBlob,
 																);
 															}
+
+															logs.push({
+																message: `Successfully processed ${i}`,
+																level: 'verbose',
+															});
+															console.log(`Successfully processed ${i}`);
 														})
 														.catch((err) => {
 															logs.push({
@@ -178,7 +180,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 										await new Promise((resolve) => {
 											setTimeout(() => {
 												resolve(undefined);
-											}, 5000);
+											}, 3000);
 										});
 									} else {
 										// Maybe log to database
@@ -246,7 +248,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 				setTimeout(() => {
 					resolve(undefined);
-				}, 5000);
+				}, 1000);
 			});
 		});
 	}
