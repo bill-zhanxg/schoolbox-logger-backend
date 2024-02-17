@@ -4,6 +4,8 @@
 import 'dotenv-flow/config';
 const dynamicImport = new Function('specifier', 'return import(specifier)');
 
+import { AuthProviderCallback, Client } from '@microsoft/microsoft-graph-client';
+import { User } from '@microsoft/microsoft-graph-types';
 import * as cheerio from 'cheerio';
 import express, { NextFunction, Request, Response } from 'express';
 import type QueueType from 'queue';
@@ -36,11 +38,11 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 	res.send('I got the response, I will process in the background');
 
-	const start = 793;
 	// End need to be +1 because the loop is exclusive
-	const end = 794 + 1;
-	// const start = 1;
-	// const end = 11520;
+	// const start = 793;
+	// const end = 794 + 1;
+	const start = 1;
+	const end = 11520 + 1;
 
 	const Queue = (await dynamicImport('queue')).default;
 	// Split the process into chunk of 500 to avoid maximum call stack exceeded
@@ -75,85 +77,105 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 								const $ = cheerio.load(await res.text());
 								const email = $('#content .content dd a').text().replaceAll(' ', '').toLowerCase();
 								if (email.trim()) {
-									// We need user cookie to get portrait
-									await fetch(`${schoolboxUrl}portrait.php?id=${i}`, {
-										headers: {
-											cookie: schoolboxCookie,
-										},
-									})
-										.then(async (res) => {
-											if (res.ok) {
-												const contentDisposition = res.headers.get('content-disposition');
-												if (!contentDisposition) throw new Error('Content-Disposition header is not defined');
-												const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-												const matches = filenameRegex.exec(contentDisposition);
-												if (matches != null && matches[1]) {
-													const filename = matches[1].replace(/['"]/g, '');
-													const portraitBlob = await res.blob();
-													const portrait = new File([portraitBlob], filename);
+									let retryPortrait = true;
+									while (retryPortrait) {
+										retryPortrait = false;
 
-													const response = await getXataFile(portrait);
-													if (typeof response === 'string') throw new Error(response);
-													const [fileObject, fileBlob] = response;
-
-													// Database action
-													await xata.db.portraits
-														.create({
-															mail: email,
-															schoolbox_id: i,
-															portrait: fileObject ? fileObject : null,
-														})
-														.then(async (portrait) => {
-															if (fileBlob) {
-																await xata.files.upload(
-																	{ table: 'portraits', column: 'portrait', record: portrait.id },
-																	fileBlob,
-																);
-															}
-
-															logs.push({
-																message: `Successfully processed ${i}`,
-																level: 'verbose',
-															});
-															console.log(`Successfully processed ${i}`);
-														})
-														.catch((err) => {
-															logs.push({
-																message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
-																level: 'error',
-															});
-															console.error(`Creating portrait record failed for ${i}`, err);
-														})
-														.finally(() => {
-															cb();
+										// We need user cookie to get portrait
+										await fetch(`${schoolboxUrl}portrait.php?id=${i}`, {
+											headers: {
+												cookie: schoolboxCookie,
+											},
+										})
+											.then(async (res) => {
+												if (res.ok) {
+													const contentDisposition = res.headers.get('content-disposition');
+													if (!contentDisposition) {
+														// We want to wait and retry the request
+														logs.push({
+															message: `Can not find content-disposition for ${i} portrait, retrying...`,
+															level: 'info',
 														});
+														console.info(`Can not find content-disposition for ${i} portrait, retrying...`);
+														retry = true;
+														await new Promise((resolve) => {
+															setTimeout(() => {
+																resolve(undefined);
+															}, 1000);
+														});
+														// Stop the current portrait request and retry
+														return;
+													}
+													const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+													const matches = filenameRegex.exec(contentDisposition);
+													if (matches != null && matches[1]) {
+														const filename = matches[1].replace(/['"]/g, '');
+														const portraitBlob = await res.blob();
+														const portrait = new File([portraitBlob], filename);
+
+														const response = await getXataFile(portrait);
+														if (typeof response === 'string') throw new Error(response);
+														const [fileObject, fileBlob] = response;
+
+														// Database action
+														await xata.db.portraits
+															.create({
+																mail: email,
+																schoolbox_id: i,
+																portrait: fileObject ? fileObject : null,
+															})
+															.then(async (portrait) => {
+																if (fileBlob) {
+																	await xata.files.upload(
+																		{ table: 'portraits', column: 'portrait', record: portrait.id },
+																		fileBlob,
+																	);
+																}
+
+																logs.push({
+																	message: `Successfully processed ${i}`,
+																	level: 'verbose',
+																});
+																console.log(`Successfully processed ${i}`);
+															})
+															.catch((err) => {
+																logs.push({
+																	message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
+																	level: 'error',
+																});
+																console.error(`Creating portrait record failed for ${i}`, err);
+															})
+															.finally(() => {
+																cb();
+															});
+													} else {
+														logs.push({
+															message: `Can not find filename for ${i} portrait`,
+															level: 'error',
+														});
+														console.error(`Can not find filename for ${i} portrait`);
+														cb();
+													}
 												} else {
 													logs.push({
-														message: `Can not find filename for ${i} portrait`,
+														message: `Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
 														level: 'error',
 													});
-													console.error(`Can not find filename for ${i} portrait`);
+													console.error(
+														`Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+													);
 													cb();
 												}
-											} else {
+											})
+											.catch((err) => {
 												logs.push({
-													message: `Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
+													message: `Portrait request failed for ${i} with message ${err.message} and stack ${err.stack}`,
 													level: 'error',
 												});
-												console.error(
-													`Portrait request not okay for ${i} with status ${res.status} and statusText ${res.statusText}`,
-												);
+												console.error(`Portrait request failed for ${i}`, err);
 												cb();
-											}
-										})
-										.catch((err) => {
-											logs.push({
-												message: `Portrait request failed for ${i} with message ${err.message} and stack ${err.stack}`,
-												level: 'error',
 											});
-											console.error(`Portrait request failed for ${i}`, err);
-											cb();
-										});
+									}
 								} else {
 									if ($.root().find('title').text().toLocaleLowerCase().includes('unavailable')) {
 										// Schoolbox is rate limited (can't handle too many requests)
@@ -182,6 +204,8 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 												resolve(undefined);
 											}, 3000);
 										});
+										// Stop the current search request and retry
+										return;
 									} else {
 										// Maybe log to database
 										logs.push({
@@ -208,13 +232,21 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 								cb();
 							}
 						})
-						.catch((err) => {
+						.catch(async (err) => {
 							logs.push({
-								message: `Search request failed okay for ${i} with message ${err.message} and stack ${err.stack}`,
+								message: `Search request failed okay for ${i} with message ${err.message} and stack ${err.stack}, retrying...`,
 								level: 'error',
 							});
-							console.error(`Search request failed okay for ${i}`, err);
-							cb();
+							console.error(`Search request failed okay for ${i}, retrying...`, err);
+							retry = true;
+							// We want to wait longer because fetch failed
+							await new Promise((resolve) => {
+								setTimeout(() => {
+									resolve(undefined);
+								}, 10000);
+							});
+							// Optional return statement
+							return;
 						});
 				}
 			});
@@ -254,6 +286,36 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	}
 
 	console.log('everything is finished!');
+});
+
+app.post('/azure-users', authenticatedUser, async (req, res) => {
+	const { azureToken } = req.body;
+	// Validate request body
+	if (!azureToken) return res.status(400).send('Incomplete request body');
+
+	res.send('I got the response, I will process in the background');
+
+	const client = Client.init({
+		authProvider: (callback: AuthProviderCallback) => {
+			callback(null, azureToken as string);
+		},
+	});
+
+	let nextLink = '/users';
+	while (nextLink !== null) {
+		await client
+			.api('https://graph.microsoft.com/v1.0/users')
+			.query({
+				$select:
+					'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
+			})
+			.get()
+			.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
+				console.log(res);
+				// nextLink = res['@odata.nextLink'];
+				console.log(res['@odata.nextLink']);
+			});
+	}
 });
 
 app.listen(8000, () => {
