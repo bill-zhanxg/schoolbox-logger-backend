@@ -321,6 +321,9 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	}
 
 	// Move all users to history
+	console.log('Moving users to history...');
+	await createUserLog('Moving users to history...', 'verbose');
+
 	let isContinue = true;
 	while (isContinue) {
 		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
@@ -357,6 +360,8 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 		await createUserLog('Stopped logging user because of error when moving users to history', 'error');
 		return;
 	}
+	console.log('Successfully moved users to history, starting to get users from Azure...');
+	await createUserLog('Successfully moved users to history, starting to get users from Azure...', 'verbose');
 
 	let nextLink: string | null = '/users';
 	while (nextLink !== null) {
