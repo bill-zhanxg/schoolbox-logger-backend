@@ -1,0 +1,219 @@
+{
+  "id": "mig_cn8omtop7gddig0kbv0g",
+  "parentID": "mig_cn857q9ha3ef86aiafn0",
+  "checksum": "1:d375b65a0453f17c801e10f3276d80b41facefa86899f23686a7ed0fb844b5de",
+  "operations": [
+    {
+      "addTable": {
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "accountEnabled",
+          "type": "bool"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "ageGroup",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "businessPhones",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "city",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "createdDateTime",
+          "type": "datetime"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "department",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "displayName",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "givenName",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "lastPasswordChangeDateTime",
+          "type": "datetime"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "mail",
+          "type": "email"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "mailNickname",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "mobilePhone",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesDistinguishedName",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesSamAccountName",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesSyncEnabled",
+          "type": "bool"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "postalCode",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "streetAddress",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "surname",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "userType",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesLastSyncDateTime",
+          "type": "datetime"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xatacreatedAt",
+          "type": "datetime"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xataupdatedAt",
+          "type": "string"
+        },
+        "table": "users_history"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xataversion",
+          "type": "int"
+        },
+        "table": "users_history"
+      }
+    }
+  ]
+}

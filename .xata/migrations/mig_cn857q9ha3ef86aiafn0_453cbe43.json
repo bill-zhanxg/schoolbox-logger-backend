@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn857q9ha3ef86aiafn0",
+  "parentID": "mig_cn7h7mhu2kslv9ddsjbg",
+  "checksum": "1:453cbe43b562d81c41bdde57b5af1e0cbad3eeacba6cacee4d65f5fdb4cbc1d9",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "onPremisesLastSyncDateTime",
+          "type": "datetime"
+        },
+        "table": "users"
+      }
+    }
+  ]
+}

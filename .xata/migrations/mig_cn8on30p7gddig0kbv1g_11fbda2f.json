@@ -1,0 +1,13 @@
+{
+  "id": "mig_cn8on30p7gddig0kbv1g",
+  "parentID": "mig_cn8on2h1gq77ugv41390",
+  "checksum": "1:11fbda2f9aa4f5eb47e7d69246149a229152cfd632403cc769cb5f95943c8c94",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "xatacreatedAt",
+        "table": "users_history"
+      }
+    }
+  ]
+}

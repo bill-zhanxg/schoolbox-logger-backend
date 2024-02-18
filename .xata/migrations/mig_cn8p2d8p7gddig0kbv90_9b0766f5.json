@@ -1,0 +1,16 @@
+{
+  "id": "mig_cn8p2d8p7gddig0kbv90",
+  "parentID": "mig_cn8p2c0p7gddig0kbv80",
+  "checksum": "1:9b0766f5a08d17be5cc1ac7531366e208b6635b601659b98572659bf8bbcfcdd",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "businessPhones",
+          "type": "multiple"
+        },
+        "table": "users_history"
+      }
+    }
+  ]
+}

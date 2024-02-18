@@ -1,0 +1,13 @@
+{
+  "id": "mig_cn8on1pha3ef86aiai70",
+  "parentID": "mig_cn8omtop7gddig0kbv0g",
+  "checksum": "1:51a17719c59f1a6c02389e7ac73169f57a585d5cbc87b68223d982190eb89077",
+  "operations": [
+    {
+      "removeColumn": {
+        "column": "xataversion",
+        "table": "users_history"
+      }
+    }
+  ]
+}

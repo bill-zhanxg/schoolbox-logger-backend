@@ -25,6 +25,11 @@ export function authenticatedUser(req: Request, res: Response, next: NextFunctio
 
 app.use(express.json());
 
+const workingStatus = {
+	schoolbox: false,
+	azure: false,
+};
+
 app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	const { schoolboxDomain, schoolboxCookie } = req.body;
 	// Validate request body
@@ -37,6 +42,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	}
 
 	res.send('I got the response, I will process in the background');
+	workingStatus.schoolbox = true;
 
 	// End need to be +1 because the loop is exclusive
 	// const start = 793;
@@ -285,6 +291,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 		});
 	}
 
+	workingStatus.schoolbox = false;
 	console.log('everything is finished!');
 });
 
@@ -294,12 +301,34 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	if (!azureToken) return res.status(400).send('Incomplete request body');
 
 	res.send('I got the response, I will process in the background');
+	workingStatus.azure = true;
 
 	const client = Client.init({
 		authProvider: (callback: AuthProviderCallback) => {
 			callback(null, azureToken as string);
 		},
 	});
+
+	// Move all users to history
+	while (true) {
+		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
+		if (users.length === 0) break;
+		await xata.transactions
+			.run(
+				users.map(({ id, ...data }) => ({
+					insert: {
+						table: 'users_history',
+						record: {
+							...data,
+							user_id: id,
+						},
+					},
+				})),
+			)
+			.catch((err) => {
+				console.error('Failed to move users to history', err);
+			});
+	}
 
 	let nextLink: string | null = '/users';
 	while (nextLink !== null) {
@@ -337,6 +366,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 			});
 	}
 
+	workingStatus.azure = false;
 	console.log('everything is finished!');
 });
 
