@@ -339,12 +339,15 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 			)
 			.catch(async (err) => {
 				console.error('Failed to move users to history', err);
-				await createUserLog('Failed to move users to history', 'error');
+				await createUserLog(
+					`Failed to move users to history with message ${err.message} and stack ${err.stack}`,
+					'error',
+				);
 				isContinue = false;
 			});
 		await xata.transactions.run(users.map(({ id }) => ({ delete: { table: 'users', id } }))).catch(async (err) => {
 			console.error('Failed to delete users', err);
-			await createUserLog('Failed to delete users', 'error');
+			await createUserLog(`Failed to delete users with message ${err.message} and stack ${err.stack}`, 'error');
 			isContinue = false;
 		});
 	}
@@ -358,7 +361,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	let nextLink: string | null = '/users';
 	while (nextLink !== null) {
 		await client
-			.api('https://graph.microsoft.com/v1.0/users')
+			.api(nextLink)
 			.query({
 				$select:
 					'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
@@ -370,7 +373,6 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 				else nextLink = res['@odata.nextLink'];
 
 				// Upload users to database
-				console.log(res);
 				await xata.transactions
 					.run(
 						res.value.map((record) => ({
@@ -380,13 +382,24 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 							},
 						})),
 					)
-					.catch((err) => {
-						console.error('Failed to upload users to database', err);
+					.then(async () => {
+						await createUserLog(`Successfully uploaded user batch with nextLink of ${nextLink} to database`, 'verbose');
+					})
+					.catch(async (err) => {
+						console.error('Failed to upload users to database, stopping execution', err);
+						await createUserLog(
+							`Failed to upload users to database with message ${err.message} and stack ${err.stack}, stopping execution`,
+							'error',
+						);
 						nextLink = null;
 					});
 			})
-			.catch((err) => {
-				console.error('Failed to get users', err);
+			.catch(async (err) => {
+				console.error('Failed to get users, stopping execution', err);
+				await createUserLog(
+					`Failed to get users with message ${err.message} and stack ${err.stack}, stopping execution`,
+					'error',
+				);
 				nextLink = null;
 			});
 	}
