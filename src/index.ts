@@ -309,13 +309,25 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 		},
 	});
 
+	async function createUserLog(message: string, level: 'verbose' | 'info' | 'warning' | 'error') {
+		await xata.db.user_logs
+			.create({
+				message,
+				level,
+			})
+			.catch((err) => {
+				console.error('Failed to create user log into database', err);
+			});
+	}
+
 	// Move all users to history
-	while (true) {
+	let isContinue = true;
+	while (isContinue) {
 		const users = await xata.db.users.getMany({ pagination: { size: 1000 } });
 		if (users.length === 0) break;
 		await xata.transactions
 			.run(
-				users.map(({ id, ...data }) => ({
+				users.map(({ id, xata, ...data }) => ({
 					insert: {
 						table: 'users_history',
 						record: {
@@ -325,9 +337,22 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 					},
 				})),
 			)
-			.catch((err) => {
+			.catch(async (err) => {
 				console.error('Failed to move users to history', err);
+				await createUserLog('Failed to move users to history', 'error');
+				isContinue = false;
 			});
+		await xata.transactions.run(users.map(({ id }) => ({ delete: { table: 'users', id } }))).catch(async (err) => {
+			console.error('Failed to delete users', err);
+			await createUserLog('Failed to delete users', 'error');
+			isContinue = false;
+		});
+	}
+	if (!isContinue) {
+		workingStatus.azure = false;
+		console.log('Stopped logging user because of error when moving users to history');
+		await createUserLog('Stopped logging user because of error when moving users to history', 'error');
+		return;
 	}
 
 	let nextLink: string | null = '/users';

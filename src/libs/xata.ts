@@ -137,6 +137,13 @@ const tables = [
       { name: "businessPhones", type: "multiple" },
     ],
   },
+  {
+    name: "user_logs",
+    columns: [
+      { name: "message", type: "string" },
+      { name: "level", type: "string" },
+    ],
+  },
 ] as const;
 
 export type SchemaTables = typeof tables;
@@ -174,6 +181,9 @@ export type PortraitLogsRecord = PortraitLogs & XataRecord;
 export type UsersHistory = InferredTypes["users_history"];
 export type UsersHistoryRecord = UsersHistory & XataRecord;
 
+export type UserLogs = InferredTypes["user_logs"];
+export type UserLogsRecord = UserLogs & XataRecord;
+
 export type DatabaseSchema = {
   nextauth_users: NextauthUsersRecord;
   nextauth_accounts: NextauthAccountsRecord;
@@ -185,6 +195,7 @@ export type DatabaseSchema = {
   portraits: PortraitsRecord;
   portrait_logs: PortraitLogsRecord;
   users_history: UsersHistoryRecord;
+  user_logs: UserLogsRecord;
 };
 
 const DatabaseClient = buildClient();

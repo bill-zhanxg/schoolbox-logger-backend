@@ -1,0 +1,57 @@
+{
+  "id": "mig_cn8p7dh1gq77ugv413u0",
+  "parentID": "mig_cn8p760p7gddig0kbvdg",
+  "checksum": "1:c9cd48a268686922d483756e13ddc0559b5d008a99e2aae12c681d2f62e26d40",
+  "operations": [
+    {
+      "addTable": {
+        "table": "user_logs"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "message",
+          "type": "string"
+        },
+        "table": "user_logs"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "level",
+          "type": "string"
+        },
+        "table": "user_logs"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xatacreatedAt",
+          "type": "datetime"
+        },
+        "table": "user_logs"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xataupdatedAt",
+          "type": "datetime"
+        },
+        "table": "user_logs"
+      }
+    },
+    {
+      "addColumn": {
+        "column": {
+          "name": "xataversion",
+          "type": "int"
+        },
+        "table": "user_logs"
+      }
+    }
+  ]
+}
