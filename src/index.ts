@@ -362,11 +362,15 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	while (nextLink !== null) {
 		await client
 			.api(nextLink)
-			.query({
-				$select:
-					'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
-				$top: 999,
-			})
+			.query(
+				nextLink === '/users'
+					? {
+							$select:
+								'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
+							$top: 999,
+					  }
+					: {},
+			)
 			.get()
 			.then(async (res: { '@odata.context': string; '@odata.nextLink'?: string; value: User[] }) => {
 				if (!res['@odata.nextLink']) nextLink = null;
@@ -383,6 +387,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 						})),
 					)
 					.then(async () => {
+						console.log(`Successfully uploaded user batch with nextLink of ${nextLink} to database`);
 						await createUserLog(`Successfully uploaded user batch with nextLink of ${nextLink} to database`, 'verbose');
 					})
 					.catch(async (err) => {
