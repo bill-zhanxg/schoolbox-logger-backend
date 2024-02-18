@@ -301,27 +301,43 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 		},
 	});
 
-	await client
-		.api('https://graph.microsoft.com/v1.0/users')
-		.get()
-		.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
-			console.log(res);
-		});
-	// let nextLink = '/users';
-	// while (nextLink !== null) {
-	// 	await client
-	// 		.api('https://graph.microsoft.com/v1.0/users')
-	// 		.query({
-	// 			$select:
-	// 				'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
-	// 		})
-	// 		.get()
-	// 		.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
-	// 			console.log(res);
-	// 			// nextLink = res['@odata.nextLink'];
-	// 			console.log(res['@odata.nextLink']);
-	// 		});
-	// }
+	let nextLink: string | null = '/users';
+	while (nextLink !== null) {
+		await client
+			.api('https://graph.microsoft.com/v1.0/users')
+			.query({
+				$select:
+					'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
+				$top: 999,
+			})
+			.get()
+			.then(async (res: { '@odata.context': string; '@odata.nextLink'?: string; value: User[] }) => {
+				if (!res['@odata.nextLink']) nextLink = null;
+				else nextLink = res['@odata.nextLink'];
+
+				// Upload users to database
+				console.log(res);
+				await xata.transactions
+					.run(
+						res.value.map((record) => ({
+							insert: {
+								table: 'users',
+								record,
+							},
+						})),
+					)
+					.catch((err) => {
+						console.error('Failed to upload users to database', err);
+						nextLink = null;
+					});
+			})
+			.catch((err) => {
+				console.error('Failed to get users', err);
+				nextLink = null;
+			});
+	}
+
+	console.log('everything is finished!');
 });
 
 app.listen(8000, () => {
