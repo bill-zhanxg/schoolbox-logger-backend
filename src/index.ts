@@ -301,21 +301,27 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 		},
 	});
 
-	let nextLink = '/users';
-	while (nextLink !== null) {
-		await client
-			.api('https://graph.microsoft.com/v1.0/users')
-			.query({
-				$select:
-					'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
-			})
-			.get()
-			.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
-				console.log(res);
-				// nextLink = res['@odata.nextLink'];
-				console.log(res['@odata.nextLink']);
-			});
-	}
+	await client
+		.api('https://graph.microsoft.com/v1.0/users')
+		.get()
+		.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
+			console.log(res);
+		});
+	// let nextLink = '/users';
+	// while (nextLink !== null) {
+	// 	await client
+	// 		.api('https://graph.microsoft.com/v1.0/users')
+	// 		.query({
+	// 			$select:
+	// 				'accountEnabled,ageGroup,businessPhones,city,createdDateTime,department,displayName,givenName,id,lastPasswordChangeDateTime,mail,mailNickname,mobilePhone,onPremisesDistinguishedName,onPremisesLastSyncDateTime,onPremisesSamAccountName,onPremisesSyncEnabled,postalCode,streetAddress,surname,userType,',
+	// 		})
+	// 		.get()
+	// 		.then((res: { '@odata.context': string; '@odata.nextLink'?: string; values: User[] }) => {
+	// 			console.log(res);
+	// 			// nextLink = res['@odata.nextLink'];
+	// 			console.log(res['@odata.nextLink']);
+	// 		});
+	// }
 });
 
 app.listen(8000, () => {
