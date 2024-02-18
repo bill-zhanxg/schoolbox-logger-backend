@@ -293,6 +293,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 	workingStatus.schoolbox = false;
 	console.log('everything is finished!');
+	await xata.db.portrait_logs.create({ message: 'everything is finished!', level: 'verbose' }).catch(() => {});
 });
 
 app.post('/azure-users', authenticatedUser, async (req, res) => {
@@ -416,6 +417,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 
 	workingStatus.azure = false;
 	console.log('everything is finished!');
+	await createUserLog('everything is finished!', 'verbose');
 });
 
 app.listen(8000, () => {
