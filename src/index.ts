@@ -420,6 +420,6 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	await createUserLog('everything is finished!', 'verbose');
 });
 
-app.listen(8000, () => {
-	console.log('listening on 8000');
+app.listen(process.env.PORT, () => {
+	console.log(`listening on ${process.env.PORT}`);
 });
