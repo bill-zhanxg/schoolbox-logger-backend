@@ -315,7 +315,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 		.catch(() => false);
 	if (!valid) {
 		console.error('Invalid Azure token');
-		return res.send('Azure token is invalid');
+		return res.status(400).send('Azure token is invalid');
 	}
 
 	res.send('I got the response, I will process in the background');
