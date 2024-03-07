@@ -301,14 +301,25 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	// Validate request body
 	if (!azureToken) return res.status(400).send('Incomplete request body');
 
-	res.send('I got the response, I will process in the background');
-	workingStatus.azure = true;
-
 	const client = Client.init({
 		authProvider: (callback: AuthProviderCallback) => {
 			callback(null, azureToken as string);
 		},
 	});
+
+	// Check if key provided is valid
+	const valid = await client
+		.api('/users')
+		.get()
+		.then(() => true)
+		.catch(() => false);
+	if (!valid) {
+		console.error('Invalid Azure token');
+		return res.send('Azure token is invalid');
+	}
+
+	res.send('I got the response, I will process in the background');
+	workingStatus.azure = true;
 
 	async function createUserLog(message: string, level: 'verbose' | 'info' | 'warning' | 'error') {
 		await xata.db.user_logs
