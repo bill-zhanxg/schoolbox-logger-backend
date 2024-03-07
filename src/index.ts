@@ -436,7 +436,7 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	await createUserLog('everything is finished!', 'verbose');
 });
 
-app.post('/status', authenticatedUser, async (req, res) => {
+app.get('/status', authenticatedUser, async (req, res) => {
 	res.send(workingStatus);
 });
 
