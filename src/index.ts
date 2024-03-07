@@ -31,6 +31,9 @@ const workingStatus = {
 };
 
 app.post('/scan-portraits', authenticatedUser, async (req, res) => {
+	if (workingStatus.schoolbox)
+		return res.status(400).send('Already processing Schoolbox portraits, please wait until it finished');
+
 	const { schoolboxDomain, schoolboxCookie } = req.body;
 	// Validate request body
 	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
@@ -297,6 +300,8 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 });
 
 app.post('/azure-users', authenticatedUser, async (req, res) => {
+	if (workingStatus.azure) return res.status(400).send('Already processing Azure users, please wait until it finished');
+
 	const { azureToken } = req.body;
 	// Validate request body
 	if (!azureToken) return res.status(400).send('Incomplete request body');
@@ -429,6 +434,10 @@ app.post('/azure-users', authenticatedUser, async (req, res) => {
 	workingStatus.azure = false;
 	console.log('everything is finished!');
 	await createUserLog('everything is finished!', 'verbose');
+});
+
+app.post('/status', authenticatedUser, async (req, res) => {
+	res.send(workingStatus);
 });
 
 app.listen(process.env.PORT, () => {
