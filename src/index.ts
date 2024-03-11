@@ -34,10 +34,10 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	if (workingStatus.schoolbox)
 		return res.status(400).send('Already processing Schoolbox portraits, please wait until it finished');
 
-	const { schoolboxDomain, schoolboxCookie, startRaw, endRaw } = req.body;
-	const start = parseInt(startRaw, 10);
+	const { schoolboxDomain, schoolboxCookie, schoolboxStartId, schoolboxEndId } = req.body;
+	const start = parseInt(schoolboxStartId, 10);
 	// End need to be +1 because the loop is exclusive, if parseInt is NaN dw it will still be NaN after +1
-	const end = parseInt(endRaw, 10) + 1;
+	const end = parseInt(schoolboxEndId, 10) + 1;
 	// Validate request body
 	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
 	if (isNaN(start) || isNaN(end)) return res.status(400).send('Invalid start or end value');
@@ -221,7 +221,6 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 											await xata.db.portraits
 												.create({
 													name,
-													mail: email,
 													schoolbox_id: i,
 												})
 												.then(async (portrait) => {
