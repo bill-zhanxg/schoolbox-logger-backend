@@ -34,9 +34,13 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	if (workingStatus.schoolbox)
 		return res.status(400).send('Already processing Schoolbox portraits, please wait until it finished');
 
-	const { schoolboxDomain, schoolboxCookie } = req.body;
+	const { schoolboxDomain, schoolboxCookie, startRaw, endRaw } = req.body;
+	const start = parseInt(startRaw, 10);
+	// End need to be +1 because the loop is exclusive, if parseInt is NaN dw it will still be NaN after +1
+	const end = parseInt(endRaw, 10) + 1;
 	// Validate request body
 	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
+	if (isNaN(start) || isNaN(end)) return res.status(400).send('Invalid start or end value');
 	let schoolboxUrl: string;
 	try {
 		schoolboxUrl = new URL(schoolboxDomain).href;
@@ -46,12 +50,6 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 
 	res.send('I got the response, I will process in the background');
 	workingStatus.schoolbox = true;
-
-	// End need to be +1 because the loop is exclusive
-	// const start = 793;
-	// const end = 794 + 1;
-	const start = 1;
-	const end = 11520 + 1;
 
 	const Queue = (await dynamicImport('queue')).default;
 	// Split the process into chunk of 500 to avoid maximum call stack exceeded
