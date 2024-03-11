@@ -82,6 +82,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 						.then(async (res) => {
 							if (res.ok) {
 								const $ = cheerio.load(await res.text());
+								const name = $('#content h1').text();
 								const email = $('#content .content dd a').text().replaceAll(' ', '').toLowerCase();
 								if (email.trim()) {
 									let retryPortrait = true;
@@ -127,6 +128,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 														// Database action
 														await xata.db.portraits
 															.create({
+																name,
 																mail: email,
 																schoolbox_id: i,
 																portrait: fileObject ? fileObject : null,
@@ -214,13 +216,40 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 										// Stop the current search request and retry
 										return;
 									} else {
-										// Maybe log to database
-										logs.push({
-											message: `No email found for ${i}`,
-											level: 'warning',
-										});
-										console.warn(`No email found for ${i}`);
-										cb();
+										// Log the name if it exists
+										if (name.trim()) {
+											await xata.db.portraits
+												.create({
+													name,
+													mail: email,
+													schoolbox_id: i,
+												})
+												.then(async (portrait) => {
+													logs.push({
+														message: `Successfully processed ${i} (name only)`,
+														level: 'verbose',
+													});
+													console.log(`Successfully processed ${i} (name only)`);
+												})
+												.catch((err) => {
+													logs.push({
+														message: `Creating portrait record failed for ${i} with message ${err.message} and stack ${err.stack}`,
+														level: 'error',
+													});
+													console.error(`Creating portrait record failed for ${i}`, err);
+												})
+												.finally(() => {
+													cb();
+												});
+										} else {
+											// Log a log to database
+											logs.push({
+												message: `No name and email found for ${i}`,
+												level: 'warning',
+											});
+											console.warn(`No name and email found for ${i}`);
+											cb();
+										}
 									}
 								}
 							} else {

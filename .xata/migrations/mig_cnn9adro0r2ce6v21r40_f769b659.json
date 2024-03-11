@@ -1,0 +1,16 @@
+{
+  "id": "mig_cnn9adro0r2ce6v21r40",
+  "parentID": "mig_cnmkjr1tkfa7d2gcjnv0",
+  "checksum": "1:f769b65981c1934fb3d29c3ce913debf47cf02874f87a64cedb27a92d445f6dd",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "name",
+          "type": "text"
+        },
+        "table": "portraits"
+      }
+    }
+  ]
+}
