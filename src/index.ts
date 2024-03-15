@@ -40,7 +40,7 @@ app.post('/scan-portraits', authenticatedUser, async (req, res) => {
 	const end = parseInt(schoolboxEndId, 10) + 1;
 	// Validate request body
 	if (!schoolboxDomain || !schoolboxCookie) return res.status(400).send('Incomplete request body');
-	if (isNaN(start) || isNaN(end)) return res.status(400).send('Invalid start or end value');
+	if (Number.isNaN(start) || Number.isNaN(end)) return res.status(400).send('Invalid start or end value');
 	let schoolboxUrl: string;
 	try {
 		schoolboxUrl = new URL(schoolboxDomain).href;
